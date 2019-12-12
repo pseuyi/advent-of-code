@@ -15,33 +15,36 @@ fs.readFile('input.txt', function(err, data) {
 
 const pi = n => parseInt(n, 10);
 
-const parseFrom = n => (s, e = 0) =>
-  pi(
+const parseFrom = n => (s, e) => {
+  const num = pi(
     n
       .toString()
       .split('')
-      .slice(s, e ? e : s + 1)
+      .slice(s, e)
       .join(''),
   );
 
+  return num;
+};
+
 const processInput = input => {
-  const INPUT = 1;
+  const INPUT = 5;
 
   let i = 0;
   while (i < input.length) {
     let modeA, modeB, modeC;
 
     const parser = parseFrom(input[i]);
-    const op = parser(-2);
+    let op = parser(-2, input[i].toString().length);
 
     if (op == 99) {
       console.log('halting');
       break;
     }
 
-    modeC = parser(-3);
-    modeB = parser(-4);
-    modeA = parser(-5);
+    modeC = parser(-3, -2);
+    modeB = parser(-4, -3);
+    modeA = parser(-5, -2);
 
     const idxC = input[i + 1];
     const idxB = input[i + 2];
@@ -68,7 +71,25 @@ const processInput = input => {
         console.log('output: ', input[idxC]);
         i += 2;
         break;
+      case 5:
+        console.log('5: ', valB);
+        if (valC != 0) i = valB;
+        else i += 3;
+        break;
+      case 6:
+        if (valC == 0) i = valB;
+        else i += 3;
+        break;
+      case 7:
+        input[idxA] = valC < valB ? 1 : 0;
+        i += 4;
+        break;
+      case 8:
+        input[idxA] = valC == valB ? 1 : 0;
+        i += 4;
+        break;
       default:
+        console.log('at opcode: ', op);
         throw new Error('invalid opcode');
         break;
     }
