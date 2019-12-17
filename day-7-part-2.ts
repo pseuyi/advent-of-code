@@ -15,98 +15,108 @@ fs.readFile('input.txt', function(err, data) {
   let maxSignal = 0;
   let maxCode = [];
 
-  const phaseSettings = getPerms('43210').slice(0,1)
+  const phaseSettings = getPerms('98765')
 
-  phaseSettings.forEach(code => {
-    const phaseSetting = code.split('').map(pi);
+  phaseSettings.forEach(perm => {
+    const sequence = perm.split('').map(pi);
+    console.log('checking perm ', perm);
 
-    let output = 0;
-    phaseSetting.forEach(ps => {
-      const amp = new IntCodeComputer(program, ps);
+    let prevSignal = 0;
 
-      const ampOut = amp.run(output);
-      console.log('output of amp ps ' + ps, ampOut);
-      output = ampOut;
+    const amps = sequence.map((ps, i) => {
+      const amp = IntCodeComputer(program.slice());
+      amp.next();
+      amp.next(ps);
+      return amp;
     });
 
-    if (output > maxSignal) {
-      maxSignal = output;
-      maxCode = phaseSetting;
+    let halted;
+    while (!halted) {
+      amps.forEach((a,i) => {
+        console.log('amp ' + i)
+        const ampOut = a.next(prevSignal)
+        console.log('ampOut: ', ampOut)
+        const {value, done} = ampOut
+        if (value != null) prevSignal = value;
+        halted = done
+      });
+    }
+
+    if (prevSignal > maxSignal) {
+      maxSignal = prevSignal;
+      maxCode = sequence;
     }
   });
-
   console.log('maxCode: ', maxCode);
   console.log('maxSignal: ', maxSignal);
 });
 
-function IntCodeComputer(program, phaseSetting) {
-  const inputs = [phaseSetting]
+function* IntCodeComputer(program) {
+  let output;
 
-  this.run = (inputSignal) => {
-    inputs.push(inputSignal)
-    let res = 0;
+  let i = 0;
+  while (i < program.length) {
+    const [modeA, modeB, modeC, op] = parseInstruction(program[i]);
 
-    let i = 0;
-    while (i < program.length) {
-      const [modeA, modeB, modeC, op] = parseInstruction(program[i]);
-
-      if (op == 99) {
-        console.log('halting');
-        break;
-      }
-
-      const idxC = program[i + 1];
-      const idxB = program[i + 2];
-      const idxA = program[i + 3];
-
-      const valC = modeC ? idxC : program[idxC];
-      const valB = modeB ? idxB : program[idxB];
-      const valA = modeA ? idxA : program[idxA];
-
-      switch (op) {
-        case 1:
-          program[idxA] = valC + valB;
-          i += 4;
-          break;
-        case 2:
-          program[idxA] = valC * valB;
-          i += 4;
-          break;
-        case 3:
-          const signal = inputs.shift();
-          console.log('receiving signal!', signal)
-          program[idxC] =signal 
-          i += 2;
-          break;
-        case 4:
-          res = program[idxC];
-          i += 2;
-          break;
-        case 5:
-          if (valC != 0) i = valB;
-          else i += 3;
-          break;
-        case 6:
-          if (valC == 0) i = valB;
-          else i += 3;
-          break;
-        case 7:
-          program[idxA] = valC < valB ? 1 : 0;
-          i += 4;
-          break;
-        case 8:
-          program[idxA] = valC == valB ? 1 : 0;
-          i += 4;
-          break;
-        default:
-          console.log('at opcode: ', op);
-          throw new Error('invalid opcode');
-          break;
-      }
+    if (op == 99) {
+      console.log('halting');
+      return output;
+      break;
     }
 
-    return res;
-  };
+    const idxC = program[i + 1];
+    const idxB = program[i + 2];
+    const idxA = program[i + 3];
+
+    const valC = modeC ? idxC : program[idxC];
+    const valB = modeB ? idxB : program[idxB];
+    const valA = modeA ? idxA : program[idxA];
+
+    console.log('processing op: ', op)
+    switch (op) {
+      case 1:
+        program[idxA] = valC + valB;
+        i += 4;
+        break;
+      case 2:
+        program[idxA] = valC * valB;
+        i += 4;
+        break;
+      case 3:
+        console.log('inside op 3')
+        const input = yield;
+        console.log('input signal: ', input);
+        program[idxC] = input;
+        i += 2;
+        break;
+      case 4:
+        output = program[idxC];
+        console.log('output signal: ', output);
+        yield output;
+        i += 2;
+        break;
+      case 5:
+        if (valC != 0) i = valB;
+        else i += 3;
+        break;
+      case 6:
+        if (valC == 0) i = valB;
+        else i += 3;
+        break;
+      case 7:
+        program[idxA] = valC < valB ? 1 : 0;
+        i += 4;
+        break;
+      case 8:
+        program[idxA] = valC == valB ? 1 : 0;
+        i += 4;
+        break;
+      default:
+        console.log('at opcode: ', op);
+        throw new Error('invalid opcode');
+        break;
+    }
+  }
 }
 
 const pi = n => parseInt(n, 10);
