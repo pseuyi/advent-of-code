@@ -6,7 +6,10 @@
   "dependencies": {
     "@types/node": "^12.12.14"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "ts-node": "^8.5.4",
+    "typescript": "^3.7.3"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
