@@ -19,7 +19,6 @@ fs.readFile('input.txt', function(err, data) {
 
   phaseSettings.forEach(perm => {
     const sequence = perm.split('').map(pi);
-    console.log('checking perm ', perm);
 
     let prevSignal = 0;
 
@@ -33,9 +32,7 @@ fs.readFile('input.txt', function(err, data) {
     let halted;
     while (!halted) {
       amps.forEach((a,i) => {
-        console.log('amp ' + i)
         const ampOut = a.next(prevSignal)
-        console.log('ampOut: ', ampOut)
         const {value, done} = ampOut
         if (value != null) prevSignal = value;
         halted = done
@@ -72,7 +69,6 @@ function* IntCodeComputer(program) {
     const valB = modeB ? idxB : program[idxB];
     const valA = modeA ? idxA : program[idxA];
 
-    console.log('processing op: ', op)
     switch (op) {
       case 1:
         program[idxA] = valC + valB;
@@ -83,15 +79,12 @@ function* IntCodeComputer(program) {
         i += 4;
         break;
       case 3:
-        console.log('inside op 3')
         const input = yield;
-        console.log('input signal: ', input);
         program[idxC] = input;
         i += 2;
         break;
       case 4:
         output = program[idxC];
-        console.log('output signal: ', output);
         yield output;
         i += 2;
         break;
