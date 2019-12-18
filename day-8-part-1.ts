@@ -1,6 +1,6 @@
 var fs = require('fs');
 
-fs.readFile('test.txt', function(err: any, data: any) {
+fs.readFile('input.txt', function(err: any, data: any) {
   if (err) throw err;
 
   const input = data
