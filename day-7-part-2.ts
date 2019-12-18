@@ -1,4 +1,4 @@
-var fs = require('fs');
+var fs = require('fs'); 
 
 fs.readFile('input.txt', function(err, data) {
   if (err) throw err;
@@ -12,6 +12,10 @@ fs.readFile('input.txt', function(err, data) {
 
   const program = text.slice();
 
+  amplifierController(program)
+});
+
+const amplifierController = program => {
   let maxSignal = 0;
   let maxCode = [];
 
@@ -46,7 +50,7 @@ fs.readFile('input.txt', function(err, data) {
   });
   console.log('maxCode: ', maxCode);
   console.log('maxSignal: ', maxSignal);
-});
+}
 
 function* IntCodeComputer(program) {
   let output;
