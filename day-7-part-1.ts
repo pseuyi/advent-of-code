@@ -14,16 +14,21 @@ fs.readFile('input.txt', function(err, data) {
 
   let maxSignal = 0;
   let maxCode = [];
-  const phaseSettings = getPerms('56789');
+  const phaseSettings = getPerms('43210');
 
   phaseSettings.forEach(code => {
     const phaseSetting = code.split('').map(pi);
 
     const ampA = new IntCodeComputer(phaseSetting[0], 0).run(instructions);
+    console.log('ampA ', ampA)
     const ampB = new IntCodeComputer(phaseSetting[1], ampA).run(instructions);
+    console.log('ampB ', ampB)
     const ampC = new IntCodeComputer(phaseSetting[2], ampB).run(instructions);
+    console.log('ampC ', ampC)
     const ampD = new IntCodeComputer(phaseSetting[3], ampC).run(instructions);
+    console.log('ampD ', ampD);
     const ampE = new IntCodeComputer(phaseSetting[4], ampD).run(instructions);
+    console.log('ampE ', ampE);
 
     if (ampE > maxSignal) {
       maxSignal = ampE;
