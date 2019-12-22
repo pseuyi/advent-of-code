@@ -10,7 +10,7 @@ fs.readFile('input.txt', function(err, data) {
     .filter(s => s.length > 0)
     .slice();
 
-  simulateMotion(text, 100);
+  simulateMotion(text, 1000);
 });
 
 type Moon = {
